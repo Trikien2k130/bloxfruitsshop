@@ -1,129 +1,143 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, get, set, update, push } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-
-// =================== FIREBASE CONFIG ===================
-// Thay bằng config của bạn
+// Thay thế thông tin cấu hình này bằng thông tin dự án Firebase của bạn
 const firebaseConfig = {
-  apiKey: "AIzaSyC1VtGLhBqBGQURqoV6OVk7PEhBKCyf6-M",
-  authDomain: "skibidi-37b6d.firebaseapp.com",
-  databaseURL: "https://skibidi-37b6d-default-rtdb.firebaseio.com/",
-  projectId: "skibidi-37b6d",
-  storageBucket: "skibidi-37b6d.firebasestorage.app",
-  messagingSenderId: "1087339530724",
-  appId: "1:1087339530724:web:4167ee61b89da9b8a99ff1"
+    apiKey: "YOUR_API_KEY", // Ví dụ: "AIzaSyC0M..."
+    authDomain: "skibidi-37b6d.firebaseapp.com",
+    databaseURL: "https://skibidi-37b6d-default-rtdb.firebaseio.com",
+    projectId: "skibidi-37b6d",
+    storageBucket: "skibidi-37b6d.appspot.com",
+    messagingSenderId: "...",
+    appId: "..."
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-const auth = getAuth(app);
+// Khởi tạo Firebase
+firebase.initializeApp(firebaseConfig);
 
-// =================== SHOP DATA ===================
-const items = {
-    dough: { name: "Dough Fruit", price: 500, img: "https://static.wikia.nocookie.net/blox-fruits/images/9/98/DoughFruit.png" },
-    portal: { name: "Portal Fruit", price: 200, img: "https://static.wikia.nocookie.net/blox-fruits/images/7/7c/PortalFruit.png" }
-};
+// Lấy tham chiếu đến Realtime Database
+const database = firebase.database();
+const stockRef = database.ref('stock');
+const pointsRef = database.ref('user/admin/points'); // Giả định đây là điểm admin
+const historyRef = database.ref('purchase_history');
 
-// =================== LOGIN ẨN DANH ===================
-signInAnonymously(auth);
+// Biến giả định cho Admin View
+// Trong ứng dụng thực tế, bạn cần xác thực người dùng để xác định vai trò
+const IS_ADMIN = true; 
 
-let currentUserUID = "";
-const ADMIN_UID = "YOUR_ADMIN_UID"; // Thay bằng UID của bạn
+// --- 1. Hiển thị Điểm số, Tồn kho, và Admin Controls ---
+stockRef.on('value', (snapshot) => {
+    const stock = snapshot.val();
+    
+    // Cập nhật tồn kho Dough
+    const doughCount = stock ? (stock.dough || 0) : 0;
+    document.getElementById('stock-dough').textContent = doughCount;
 
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        currentUserUID = user.uid;
-        document.getElementById("userInfo").innerText = `Bạn đã đăng nhập: ${currentUserUID}`;
-        if(currentUserUID === ADMIN_UID) {
-            document.getElementById("adminPanel").style.display = "block";
-        }
-        const userRef = ref(db, "users/" + currentUserUID);
-        get(userRef).then(snap => {
-            if(!snap.exists()){
-                set(userRef, { points: 1000 });
-            }
-        }).then(loadShop);
-    }
+    // Cập nhật tồn kho Portal
+    const portalCount = stock ? (stock.portal || 0) : 0;
+    document.getElementById('stock-portal').textContent = portalCount;
+
+    // Bật/Tắt nút MUA dựa trên tồn kho
+    document.querySelectorAll('.product-card').forEach(card => {
+        const item = card.dataset.item;
+        const count = stock ? (stock[item] || 0) : 0;
+        const buyButton = card.querySelector('.btn-buy');
+        
+        buyButton.disabled = count <= 0;
+    });
 });
 
-// =================== LOAD SHOP ===================
-function loadShop() {
-    const shopDiv = document.getElementById("shop");
-    shopDiv.innerHTML = "";
+pointsRef.on('value', (snapshot) => {
+    const points = snapshot.val();
+    document.getElementById('user-points').textContent = points !== null ? points : 0;
+});
 
-    Object.keys(items).forEach(id => {
-        const item = items[id];
-        const stockRef = ref(db, "stock/" + id);
 
-        get(stockRef).then(snapshot => {
-            const stock = snapshot.val() ?? 0;
-
-            get(ref(db, "users/" + currentUserUID + "/points")).then(snap => {
-                const points = snap.val() ?? 0;
-                document.getElementById("pointsDisplay").innerText = `Points: ${points}`;
-            });
-
-            const div = document.createElement("div");
-            div.className = "item";
-            div.innerHTML = `
-                <h2>${item.name}</h2>
-                <img src="${item.img}">
-                <p>Giá: ${item.price} points</p>
-                <p>Stock: <b>${stock}</b></p>
-                <div class="admin-controls">
-                    ${currentUserUID===ADMIN_UID?`<button class="stock-btn" onclick="changeStock('${id}', -1)">-1</button>`:""}
-                    <button class="buy-btn" onclick="buyItem('${id}')">Mua</button>
-                    ${currentUserUID===ADMIN_UID?`<button class="stock-btn" onclick="changeStock('${id}', 1)">+1</button>`:""}
-                </div>
-            `;
-            shopDiv.appendChild(div);
+document.addEventListener('DOMContentLoaded', () => {
+    // Hiển thị/Ẩn Admin Controls
+    if (IS_ADMIN) {
+        document.querySelectorAll('.admin-controls').forEach(el => {
+            el.style.display = 'inline-block';
         });
-    });
-}
+    } else {
+        document.querySelectorAll('.admin-controls').forEach(el => {
+            el.style.display = 'none';
+        });
+    }
 
-// =================== BUY ITEM ===================
-window.buyItem = function(id) {
-    const userRef = ref(db, "users/" + currentUserUID);
-    const stockRef = ref(db, "stock/" + id);
+    // --- 2. Xử lý logic MUA hàng ---
+    document.querySelectorAll('.btn-buy').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const card = e.target.closest('.product-card');
+            const item = card.dataset.item;
+            const price = parseInt(card.dataset.price);
+            const currentPoints = parseInt(document.getElementById('user-points').textContent);
+            const stockCountEl = document.getElementById(`stock-${item}`);
+            let currentStock = parseInt(stockCountEl.textContent);
 
-    get(userRef).then(snap => {
-        let points = snap.val()?.points ?? 0;
-        const price = items[id].price;
+            if (currentPoints >= price && currentStock > 0) {
+                // 1. Giảm điểm của người dùng
+                pointsRef.transaction((current) => {
+                    return (current || 0) - price;
+                });
 
-        if(points < price){
-            alert("❌ Không đủ points!");
-            return;
-        }
+                // 2. Giảm tồn kho
+                stockRef.child(item).transaction((current) => {
+                    return (current || 1) - 1; // Đảm bảo không xuống dưới 0
+                });
 
-        get(stockRef).then(stockSnap=>{
-            let stock = stockSnap.val() ?? 0;
-            if(stock <= 0){
-                alert("❌ Hết hàng!");
-                return;
+                // 3. Ghi vào lịch sử mua hàng
+                const newHistoryRef = historyRef.push();
+                newHistoryRef.set({
+                    item: item,
+                    price: price,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+
+                alert(`Đã mua thành công ${item}! Trừ ${price} điểm.`);
+            } else if (currentStock <= 0) {
+                alert(`Xin lỗi, ${item} đã hết hàng.`);
+            } else {
+                alert(`Không đủ điểm để mua ${item}. Cần ${price} điểm.`);
             }
-
-            update(userRef, { points: points - price });
-            set(stockRef, stock-1);
-
-            const orderRef = ref(db, "orders/" + currentUserUID);
-            push(orderRef, { item: id, time: new Date().toISOString() });
-
-            alert(`✅ Bạn đã mua ${items[id].name} thành công!`);
-            loadShop();
         });
     });
-};
 
-// =================== CHANGE STOCK ===================
-window.changeStock = function(id, amount){
-    const stockRef = ref(db, "stock/" + id);
-    get(stockRef).then(snap=>{
-        let stock = snap.val() ?? 0;
-        let newStock = stock + amount;
-        if(newStock < 0) newStock = 0;
-        set(stockRef, newStock).then(()=>{
-            alert(`Stock ${id} = ${newStock}`);
-            loadShop();
+    // --- 3. Xử lý logic điều chỉnh tồn kho (Admin) ---
+    document.querySelectorAll('.btn-stock-adjust').forEach(button => {
+        button.addEventListener('click', (e) => {
+            if (!IS_ADMIN) return; 
+
+            const card = e.target.closest('.product-card');
+            const item = card.dataset.item;
+            const action = e.target.dataset.action;
+
+            stockRef.child(item).transaction((current) => {
+                let newCount = current || 0;
+                if (action === 'add') {
+                    newCount += 1;
+                } else if (action === 'subtract') {
+                    newCount = Math.max(0, newCount - 1); // Không cho phép tồn kho âm
+                }
+                return newCount;
+            });
         });
     });
-};
+});
+
+// --- 4. Hiển thị Lịch sử Mua hàng ---
+historyRef.orderByChild('timestamp').limitToLast(10).on('value', (snapshot) => {
+    const historyList = document.getElementById('purchase-history');
+    historyList.innerHTML = ''; // Xóa lịch sử cũ
+
+    if (!snapshot.exists() || snapshot.numChildren() === 0) {
+        historyList.innerHTML = '<li>Chưa có giao dịch nào.</li>';
+        return;
+    }
+
+    snapshot.forEach((childSnapshot) => {
+        const purchase = childSnapshot.val();
+        const date = purchase.timestamp ? new Date(purchase.timestamp).toLocaleString() : 'N/A';
+        
+        const listItem = document.createElement('li');
+        listItem.textContent = `${date}: Đã mua **${purchase.item.toUpperCase()}** với giá **${purchase.price}** điểm.`;
+        historyList.prepend(listItem); // Thêm vào đầu để hiển thị lịch sử mới nhất
+    });
+});
