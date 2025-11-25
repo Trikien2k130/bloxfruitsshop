@@ -1,24 +1,59 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Blox Fruits Shop</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skibidi Stock Portal</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <h1 class="title">Blox Fruits Shop</h1>
-  <p id="userInfo"></p>
-  <p id="pointsDisplay">Points: 0</p>
+    <div class="container">
+        <h1>📊 Skibidi Stock & Points</h1>
 
-  <div id="shop"></div>
+        <div class="points-section">
+            <p>💰 Điểm của bạn: <span id="user-points">0</span></p>
+        </div>
 
-  <div id="adminPanel" style="display:none;">
-    <h2>Admin Panel</h2>
-    <p>Chỉ admin mới thấy nút restock</p>
-  </div>
+        <hr>
 
-  <script type="module" src="script.js"></script>
+        <h2>🛒 Cửa hàng</h2>
+        <div class="products-grid">
+            <div class="product-card" data-item="dough" data-price="10">
+                <h3>Dough 🍩</h3>
+                <p>Giá: 10 điểm</p>
+                <p>Tồn kho: <span class="stock-count" id="stock-dough">...</span></p>
+                <div class="admin-controls">
+                    <button class="btn-stock-adjust" data-action="add">+</button>
+                    <button class="btn-stock-adjust" data-action="subtract">-</button>
+                </div>
+                <button class="btn-buy" disabled>MUA</button>
+            </div>
+
+            <div class="product-card" data-item="portal" data-price="50">
+                <h3>Portal 🌌</h3>
+                <p>Giá: 50 điểm</p>
+                <p>Tồn kho: <span class="stock-count" id="stock-portal">...</span></p>
+                <div class="admin-controls">
+                    <button class="btn-stock-adjust" data-action="add">+</button>
+                    <button class="btn-stock-adjust" data-action="subtract">-</button>
+                </div>
+                <button class="btn-buy" disabled>MUA</button>
+            </div>
+        </div>
+
+        <hr>
+
+        <h2>📜 Lịch sử Mua hàng</h2>
+        <ul id="purchase-history">
+            <li>Đang tải lịch sử...</li>
+        </ul>
+
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+    <script src="script.js"></script>
 </body>
 </html>
