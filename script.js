@@ -14,12 +14,11 @@ const firebaseConfig = {
   appId: "1:1087339530724:web:4167ee61b89da9b8a99ff1"
 };
 
-// =================== INIT ===================
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const auth = getAuth(app);
 
-// =================== DỮ LIỆU SHOP ===================
+// =================== SHOP DATA ===================
 const items = {
     dough: { name: "Dough Fruit", price: 500, img: "https://static.wikia.nocookie.net/blox-fruits/images/9/98/DoughFruit.png" },
     portal: { name: "Portal Fruit", price: 200, img: "https://static.wikia.nocookie.net/blox-fruits/images/7/7c/PortalFruit.png" }
@@ -38,11 +37,10 @@ onAuthStateChanged(auth, (user) => {
         if(currentUserUID === ADMIN_UID) {
             document.getElementById("adminPanel").style.display = "block";
         }
-        // Tạo user trong db nếu chưa có
         const userRef = ref(db, "users/" + currentUserUID);
         get(userRef).then(snap => {
             if(!snap.exists()){
-                set(userRef, { points: 1000 }); // mặc định 1000 points
+                set(userRef, { points: 1000 });
             }
         }).then(loadShop);
     }
@@ -60,13 +58,11 @@ function loadShop() {
         get(stockRef).then(snapshot => {
             const stock = snapshot.val() ?? 0;
 
-            // Load points
             get(ref(db, "users/" + currentUserUID + "/points")).then(snap => {
                 const points = snap.val() ?? 0;
                 document.getElementById("pointsDisplay").innerText = `Points: ${points}`;
             });
 
-            // Mỗi món
             const div = document.createElement("div");
             div.className = "item";
             div.innerHTML = `
@@ -106,11 +102,9 @@ window.buyItem = function(id) {
                 return;
             }
 
-            // Trừ points + trừ stock
             update(userRef, { points: points - price });
             set(stockRef, stock-1);
 
-            // Lưu lịch sử đơn hàng
             const orderRef = ref(db, "orders/" + currentUserUID);
             push(orderRef, { item: id, time: new Date().toISOString() });
 
