@@ -2,46 +2,23 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Blox Fruits Shop</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Blox Fruits Shop</h1>
 
-  <p id="points">Points: 0</p>
+  <h1 class="title">Blox Fruits Shop</h1>
+  <p id="userInfo"></p>
+  <p id="pointsDisplay">Points: 0</p>
 
-  <div id="shop">
-    <!-- Dough Fruit -->
-    <div class="item">
-      <img src="https://static.wikia.nocookie.net/blox-fruits/images/9/9c/Dough_Icon.png" alt="Dough Fruit">
-      <h3>Dough Fruit</h3>
-      <p>Giá: 500 points</p>
-      <p id="stock_dough">Còn: 0</p>
-      <button id="buyDough">Mua</button>
-      <p class="msg" id="msg_dough"></p>
-    </div>
+  <div id="shop"></div>
 
-    <!-- Portal Fruit -->
-    <div class="item">
-      <img src="https://static.wikia.nocookie.net/blox-fruits/images/a/a6/Portal.png" alt="Portal Fruit">
-      <h3>Portal Fruit</h3>
-      <p>Giá: 200 points</p>
-      <p id="stock_portal">Còn: 0</p>
-      <button id="buyPortal">Mua</button>
-      <p class="msg" id="msg_portal"></p>
-    </div>
-  </div>
-
-  <br><br>
-
-  <!-- ADMIN PANEL -->
-  <div id="admin" style="display:none;">
+  <div id="adminPanel" style="display:none;">
     <h2>Admin Panel</h2>
-    <button onclick="addStock()">+ Thêm hàng</button>
-    <p id="adminStatus"></p>
+    <p>Restock chỉ admin mới thấy</p>
   </div>
 
-  <!-- Kết nối script -->
   <script type="module" src="script.js"></script>
 </body>
 </html>
