@@ -61,6 +61,14 @@ h2 {
     color: #dc3545;
 }
 
+/* Style cho hình ảnh sản phẩm */
+.product-image {
+    width: 100px;
+    height: auto;
+    margin: 10px 0;
+    border-radius: 5px;
+}
+
 /* Điều khiển Admin */
 .admin-controls {
     margin: 10px 0;
