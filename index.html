@@ -3,25 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Skibidi Stock Portal</title>
+    <title>Blox Fruits Stock Portal</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <div class="container">
-        <h1>📊 Skibidi Stock & Points</h1>
+        <h1>⚔️ Blox Fruits Stock & Points</h1>
 
         <div class="points-section">
-            <p>💰 Điểm của bạn: <span id="user-points">0</span></p>
+            <p>💰 Điểm của bạn: <span id="user-points">0</span> (Admin)</p>
         </div>
 
         <hr>
 
         <h2>🛒 Cửa hàng</h2>
         <div class="products-grid">
-            <div class="product-card" data-item="dough" data-price="10">
+            
+            <div class="product-card" data-item="dough" data-price="50">
                 <h3>Dough 🍩</h3>
-                <p>Giá: 10 điểm</p>
+                <img src="https://static.wikia.nocookie.net/roblox-blox-piece/images/0/02/Dough_Fruit.png/revision/latest?cb=20231210155057" alt="Dough Fruit" class="product-image">
+                <p>Giá: 50 điểm</p>
                 <p>Tồn kho: <span class="stock-count" id="stock-dough">...</span></p>
                 <div class="admin-controls">
                     <button class="btn-stock-adjust" data-action="add">+</button>
@@ -30,9 +32,10 @@
                 <button class="btn-buy" disabled>MUA</button>
             </div>
 
-            <div class="product-card" data-item="portal" data-price="50">
+            <div class="product-card" data-item="portal" data-price="20">
                 <h3>Portal 🌌</h3>
-                <p>Giá: 50 điểm</p>
+                <img src="https://static.wikia.nocookie.net/roblox-blox-piece/images/8/8a/Portal_Fruit.png/revision/latest?cb=20231027115746" alt="Portal Fruit" class="product-image">
+                <p>Giá: 20 điểm</p>
                 <p>Tồn kho: <span class="stock-count" id="stock-portal">...</span></p>
                 <div class="admin-controls">
                     <button class="btn-stock-adjust" data-action="add">+</button>
@@ -44,7 +47,7 @@
 
         <hr>
 
-        <h2>📜 Lịch sử Mua hàng</h2>
+        <h2>📜 Lịch sử Giao dịch</h2>
         <ul id="purchase-history">
             <li>Đang tải lịch sử...</li>
         </ul>
